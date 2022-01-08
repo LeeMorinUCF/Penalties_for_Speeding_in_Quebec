@@ -30,12 +30,14 @@ that the data not be made publicly available.
 
 # Instructions:
 
-The workflow proceeds in two stages: 
+The workflow proceeds in three stages: 
 one set of instructions outlines the operations 
 to transform the raw data in the 
 SAAQ database into the dataset that is the input 
 for the statistical analysis
 in the next stage. 
+In the final stage, the estimation results 
+are used to create the figures and tables for the manuscript. 
 
 
 ## Data Manipulation

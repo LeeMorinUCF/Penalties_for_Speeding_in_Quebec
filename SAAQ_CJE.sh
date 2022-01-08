@@ -62,6 +62,16 @@ echo ""
 Rscript Code/file2.R > Code/file2.out
 echo ""
 
+echo ""
+echo "Renaming figures for CJE naming conventions..."
+echo ""
+
+mv Figures/num_pts_5_10_all.eps Figures/Figure1.eps
+mv Figures/num_pts_7_14_all.eps Figures/Figure2.eps
+mv Figures/points_fig_with_age_int.eps Figures/Figure3.eps
+mv Figures/Event_Study.eps Figures/Figure4.eps
+
+
 echo "Finished generating tables and figures."
 echo ""
 echo "#-------------------------------------------------"
