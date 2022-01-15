@@ -32,8 +32,7 @@ along with the gender and date of birth of each driver.
 
 Counts of individual drivers were obtained 
 from the website of the Banque de données des statistiques officielles sur le Québec, available 
-[here]
-(https://bdso.gouv.qc.ca/pls/ken/ken213_afich_tabl.page_tabl?p_iden_tran=REPERRUNYAW46-44034787356%7C@%7Dzb&p_lang=2&p_m_o=SAAQ&p_id_ss_domn=718&p_id_raprt=3370#tri_pivot_1=500400000). 
+[here](https://bdso.gouv.qc.ca/pls/ken/ken213_afich_tabl.page_tabl?p_iden_tran=REPERRUNYAW46-44034787356%7C@%7Dzb&p_lang=2&p_m_o=SAAQ&p_id_ss_domn=718&p_id_raprt=3370#tri_pivot_1=500400000). 
 
 The statistics were compiled into a single spreadsheet
 ```SAAQ_drivers_annual.csv```, 
@@ -239,8 +238,7 @@ with the following versions:
   for Drivers with Traffic Violations 2004-2010.
 
 - Banque de données des statistiques officielles sur le Québec
-[Nombre de titulaires d'un permis de conduire ou d'un permis probatoire selon le sexe et l'âge, Québec et régions administratives]
-(https://bdso.gouv.qc.ca/pls/ken/ken213_afich_tabl.page_tabl?p_iden_tran=REPERRUNYAW46-44034787356%7C@%7Dzb&p_lang=2&p_m_o=SAAQ&p_id_ss_domn=718&p_id_raprt=3370#tri_pivot_1=500400000)
+[Nombre de titulaires d'un permis de conduire ou d'un permis probatoire selon le sexe et l'âge, Québec et régions administratives](https://bdso.gouv.qc.ca/pls/ken/ken213_afich_tabl.page_tabl?p_iden_tran=REPERRUNYAW46-44034787356%7C@%7Dzb&p_lang=2&p_m_o=SAAQ&p_id_ss_domn=718&p_id_raprt=3370#tri_pivot_1=500400000)
 
 
 ## Acknowledgements
