@@ -24,7 +24,10 @@ echo ""
 echo "Generating dataset..."
 echo ""
 
-Rscript Code/file1.R > Code/file1.out
+Rscript Code/SAAQ_tickets.R
+Rscript Code/SAAQ_point_balances.R
+Rscript Code/SAAQ_driver_counts.R
+Rscript Code/SAAQ_join.R
 echo ""
 
 echo "Generating dataset."
@@ -41,7 +44,7 @@ echo ""
 echo "Estimating models..."
 echo ""
 
-Rscript Code/file2.R > Code/file2.out
+Rscript Code/SAAQ_Regs.R
 echo ""
 
 echo "Finished estimating models."
@@ -59,7 +62,9 @@ echo ""
 echo "Generating tables and figures..."
 echo ""
 
-Rscript Code/file2.R > Code/file2.out
+Rscript Code/SAAQ_Tables.R
+Rscript Code/SAAQ_estn_figs.R
+Rscript Code/SAAQ_count_figs.R
 echo ""
 
 echo ""
