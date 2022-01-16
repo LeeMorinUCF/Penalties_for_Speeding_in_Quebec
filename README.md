@@ -3,7 +3,7 @@
 This repository contains the code base to accompany the manuscript 
 "Penalties for Speeding and their Effect on Moving Violations: 
 Evidence from Quebec Drivers" 
-by Chandler, Morin, and Penney in the Canadian Journal of Economics, 2022
+by Chandler, Morin, and Penney in the *Canadian Journal of Economics*, 2022
 
 All scripts are available on the GitHub code repository 
 available at the following link: 
@@ -26,7 +26,10 @@ The above record of tickets are market with
 driver-specific identifier, which serves as a key for 
 a dataset of driver-specific characteristics.
 This dataset contains the driver identification number, 
-along with the gender and date of birth of each driver. 
+along with the gender and date of birth of each driver.
+This information is not publicly available
+to protect the privacy of the drivers.
+
 
 ### Aggregate Counts of Drivers
 
@@ -136,6 +139,8 @@ run a series of scripts
 to draw from values in the estimation
 results to produce the figures and tables in the manuscript. 
 
+### Producing the Outputs
+
 Run the scripts in the ```Code/Out``` folder
 perform the following operations:
 
@@ -143,37 +148,86 @@ perform the following operations:
     produces tables of estimates from the results in
     the ```Estn``` folder. 
     These tables are all output to the ```Tables``` folder. 
-1.  Run the script ```SAAQ_estn_figs.R```, which
+1.  Run the script ```SAAQ_Estn_Figs.R```, which
     produces the
     figures from the estimation of the event studies and 
     the estimation with granular demerit-point categories.
-    These figures are output to the ```Figures``` folder, 
-    which are ultimately named 
+    These figures are output to the ```Figures``` folder
+    and are ultimately named 
     ```Figure3.eps``` and ```Figure4.eps```. 
-1.  Run the script ```SAAQ_count_figs.R```, which 
+1.  Run the script ```SAAQ_Count_Figs.R```, which 
     produces the
     figures of the frequency of tickets
     from aggregate data by month. 
-    This produces ```Figure1.eps``` and ```Figure2.eps```,
-    which are both output to the ```Figures``` folder, 
-    
+    This produces ```num_pts_5_10.eps``` 
+    and ```num_pts_7_14.eps```,
+    which are both output to the ```Figures``` folder
+    and are ultimately named 
+    ```Figure1.eps``` and ```Figure2.eps```. 
+    It also outputs a dataset ```.csv``` which is used to calculate
+    the summary statistics in Table 2. 
+
+
+### Producing the Tables individually
+
+All tables in the manuscript were output to the folder ```Tables```.
+
+1.  Table 1 was produced manually 
+    and appears in the file ```Penalties.tex```.
+1.  Table 2 was produced by an Excel spreadsheet
+    ```Point_Freq_Gender_Ratio.xlsx``` from the outputs in 
+    ```Point_Freq_Gender_Ratio.csv``` and appears in the file 
+    ```Point_Freq_Gender_Ratio.tex``` .
+1.  Tables 3, 4, 5, 6 and 7 were produced together from
+    the commands on lines 248 to 258 of the script ```SAAQ_Tables.R```
+    using the regression results obtained above
+    and the function library ```SAAQ_Tab_Lib.R``` 
+    in the folder ```Code/Lib```. 
+
+
+### Producing the Figures individually
+
+All figures in the manuscript were output to the folder ```Figures```.
+
+1.  Figure 1 was produced from
+    the commands on lines 263 to 284 
+    of the script ```SAAQ_Count_Figs.R```.
+1.  Figure 2 was produced from
+    the commands on lines 310 to 331 
+    of the script ```SAAQ_Count_Figs.R```.
+1.  Figure 3 was produced from
+    the commands on lines 156 to 189 
+    of the script ```SAAQ_Estn_Figs.R```
+    using the regression results obtained above.
+1.  Figure 4 was produced from
+    the commands on lines 252 to 292 
+    of the script ```SAAQ_Estn_Figs.R```
+    using the regression results obtained above.
+
 
 ## Libraries
 
 The above programs use functions defined in the following libraries, which are stored in the ```Code/Lib``` folder. 
 
-1.  The script ```SAAQ_Reg_Lib.R``` defines functions
+1.  The script ```SAAQ_Agg_Reg_Lib.R``` defines functions
     for running regressions with data aggregated by the 
     number of driver days for each combination of the 
     dependent variables. 
     Since weighted regression is used in different contexts, 
-    this library makes adjustments for degrees of freedom 
-    and so on
-    to make the results appear equivalent to those 
+    this library makes adjustments, 
+    such as for degrees of freedom,
+    to make the results equivalent to those which would be obtained
     from the full dataset with one observation per driver per day. 
-1.  The script ```SAAQ_Reg_Lib.R``` also defines functions
+    Since most drivers do not get tickets on most days,
+    this library effectively compresses the dataset
+    by a factor of one thousand, 
+    from billions of driver days to millions of unique observations.
+1.  The script ```SAAQ_Agg_Het_Lib.R``` 
     defines functions for the 
-    calculation of heteroskedasticity-corrected standard errors.
+    calculation of heteroskedasticity-corrected standard errors
+    with aggregated data.
+1.  The script ```SAAQ_Reg_Lib.R``` defines helper functions
+    for data formatting and preparation for regressions. 
 1.  The script ```SAAQ_MFX_Lib.R``` defines functions
     to calculate marginal effects. 
 1.  The script ```SAAQ_Tab_Lib.R``` defines functions
@@ -209,7 +263,9 @@ The attached packages include the following:
 - ```data.table```, version 1.13.0 (using 4 threads), to handle the main data table for data preparation and analysis 
 in the scripts in the ```Code/Prep``` and ```Code/Reg``` folders. 
 
-- ```xtable```, version 1.8-4, to generate LaTeX tables for Tables 3, 4, 5, 6, and 7.
+- ```xtable```, version 1.8-4, to generate LaTeX tables for Tables 3, 4, 5, 6, and 7.   
+
+- ```scales``` version 1.1.1, to format numbers in LaTeX tables.
 
 Upon attachment of the above packages, 
 the following packages were loaded via a namespace, but not attached,
@@ -224,8 +280,7 @@ with the following versions:
 - ```stringr``` version 1.4.0
 - ```withr``` version 2.4.2       
 - ```foreign``` version 0.8-81    
-- ```tidyr``` version 1.1.3       
-- ```scales``` version 1.1.1      
+- ```tidyr``` version 1.1.3        
 - ```stringi``` version 1.5.3    
 
 ## References

@@ -1,224 +1,68 @@
 ################################################################################
 #
-# Investigation of SAAQ Traffic Ticket Violations
+# Analysis of Penalties for Speeding in Quebec
 #
-# Logistic and linear probability models of numbers of tickets awarded by the
-# number of points per ticket.
-#
-#
+# Creating Figures from Regression Results
 #
 # Lealand Morin, Ph.D.
 # Assistant Professor
 # Department of Economics
-# College of Business
+# College of Business Administration
 # University of Central Florida
 #
-# November 28, 2021
+# January 7, 2022
 #
 ################################################################################
 #
-# This script creates figures of the policy effect by demerit point
-# balances both with and without age interactions.
+# This script is part of the code base to accompany the manuscript
+# "Penalties for Speeding and their Effect on Moving Violations:
+# Evidence from Quebec Drivers"
+# by Chandler, Morin, and Penney
+# in the *Canadian Journal of Economics*, 2022
 #
+# All scripts are available on the GitHub code repository
+# "Penalties_for_Speeding_in_Quebec"
+# available at the following link:
+# https://github.com/LeeMorinUCF/Penalties_for_Speeding_in_Quebec
+# Any updates will be available on the GitHub code repository.
 #
 ################################################################################
-
-################################################################################
-# Clearing Workspace and Declaring Packages
-################################################################################
-
-# Clear workspace.
-rm(list=ls(all=TRUE))
 
 
 ################################################################################
 # Set parameters for file IO
 ################################################################################
 
-# Set working directory.
-# setwd('/home/ec2-user/saaq')
-# setwd('~/Research/SAAQ/')
 
-# Set working directory, if running interactively.
-drive_path <- 'C:/Users/le279259/OneDrive - University of Central Florida/Documents'
-git_path <- 'Research/SAAQ/SAAQspeeding/SAAQ_XS_de_Vitesse_2008'
-wd_path <- sprintf('%s/%s',drive_path, git_path)
-setwd(wd_path)
+# Set path for estimation results.
+estn_dir <- 'Estn'
 
-
-# The original data are stored in 'SAAQdata/origData/'.
-# dataInPath <- 'SAAQdata_full/'
-# data_in_path <- '~/Research/SAAQ/SAAQdata_full/'
-# data_in_path <- 'C:/Users/le279259/Documents/Research/SAAQ/SAAQdata_full/'
-data_in_path <- 'Data'
-
-
-# Set methodology for zero-ticket population count:
-# adj (unadjusted zero counts, intended for stacked join) or
-zero_count_method <- 'adj'
-# unadj (adjusted zero counts, intended for differenced join)
-# zero_count_method <- 'unadj'
-
-# Set join methodology:
-# all (stacked, intended for unadjusted zero counts) or
-# join_method <- 'all'
-# net (differenced, intended for adjusted zero counts)
-# join_method <- 'net'
-# Original join method, like 'all' but with balances
-# calculated in a way that accurately records the aging
-# of drivers throughout the sample.
-# This original version merges younger age categories.
-# join_method <- 'orig'
-# This original version keeps the same age categories.
-join_method <- 'orig_agg'
-
-
-# Set version of input files.
-# data_in_method <- 'all_unadj'
-data_in_method <- sprintf('%s_%s', join_method, zero_count_method)
-
-
-data_out_path <- 'Estn'
-
-
-# Set directory for results in GitHub repo.
-# git_path <- "~/Research/SAAQ/SAAQspeeding/Hidden_Comp_Risks/R_and_R"
-# git_path <- "C:/Users/le279259/Documents/Research/SAAQ/SAAQspeeding/Hidden_Comp_Risks/R_and_R"
-# md_dir <- sprintf("%s/results", git_path)
-# md_dir <- sprintf("%s/results", data_out_path)
-md_dir <- sprintf("%s/results_%s", data_out_path, data_in_method)
-
+# Set path for output of figures.
+fig_dir <- 'Figures'
 
 
 
 ################################################################################
-# Load estimation results.
+# Plot Figure from Regression by Demerit Point Balance
 ################################################################################
-
 
 # Set path for retrieving estimates.
 # Specification: Plot by demerit point groups
 spec_group <- 'points'
-estn_version <- 16
-estn_file_name <- sprintf('estimates_v%d_%s.csv', estn_version, spec_group)
-estn_file_path <- sprintf('%s/%s', md_dir, estn_file_name)
-
+estn_file_name <- sprintf('estimates_%s.csv', spec_group)
+estn_file_path <- sprintf('%s/%s', estn_dir, estn_file_name)
 
 
 # Read in the estimation results.
 estn_results <- read.csv(file = estn_file_path)
 
 
-################################################################################
-# Model without age interactions
-################################################################################
 
-age_int <- 'no'
-
-
-# sex_sel <- 'Male'
-# sex_sel <- 'Female'
-sex_sel_list <- c('Male', 'Female')
-
-curr_pts_reg_list <- c(as.character(seq(0,9)), '10-150')
-
-points_policy <- data.frame(curr_pts = curr_pts_reg_list[2:11],
-                            policy_M = numeric(10),
-                            std_err_M = numeric(10),
-                            policy_F = numeric(10),
-                            std_err_F = numeric(10))
-
-
-
-for (sex_sel in sex_sel_list) {
-
-  print(sprintf('Calculating predictions for %s Drivers', sex_sel))
-
-  #------------------------------------------------------------
-  # Retrieve estimates
-  #------------------------------------------------------------
-
-  # Select the rows that correspond to a particular model and subsample.
-  estn_sel <- estn_results[, 'sex'] == sex_sel &
-    estn_results[, 'age_int'] == age_int
-  est_coefs <- estn_results[estn_sel, ]
-
-
-  #------------------------------------------------------------
-  # Retrieve covariance matrix
-  #------------------------------------------------------------
-
-  # Set path for retrieving covariance matrix.
-  cov_file_name <- sprintf('points_fig/cov_mat_v%d_%s_%s_age_int_%s.csv',
-                           estn_version, spec_group, age_int, substr(sex_sel, 1, 1))
-  cov_file_path <- sprintf('%s/%s', md_dir, cov_file_name)
-
-  vcov_hccme <- read.csv(file = cov_file_path)
-
-  # Extract matrix with appropriate labels.
-  rownames(vcov_hccme) <- vcov_hccme[, 'X']
-  vcov_hccme <- vcov_hccme[, 2:ncol(vcov_hccme)]
-  vcov_hccme <- as.matrix(vcov_hccme)
-
-
-  # Verify the diagonal to ensure compatibility.
-  # sqrt(diag(vcov_hccme)) - est_coefs[, 'Std_Error']
-  # abs(sqrt(diag(vcov_hccme)) - est_coefs[, 'Std_Error']) < 10^(-19)
-  print('Covariance matrix check: Number of errors = ')
-  print(sum(!abs(sqrt(diag(vcov_hccme)) - est_coefs[, 'Std_Error']) < 10^(-15)))
-  # Confirms that the files are compatible.
-
-  #------------------------------------------------------------
-  # Obtain the estimates and standard errors.
-  #------------------------------------------------------------
-
-  for (curr_pts_num in 1:10) {
-
-    curr_pts_grp_sel <- curr_pts_reg_list[curr_pts_num - 1]
-
-    var_sel <- c('policyTRUE', sprintf('policyTRUE:curr_pts_reg%s', curr_pts_grp_sel))
-    var_row_sel <- est_coefs[, 'Variable'] %in% var_sel
-    # est_coefs[var_row_sel, 'Variable']
-    # est_coefs[var_row_sel, 'Estimate']
-    # est_coefs[var_row_sel, 'Std_Error']
-
-    col_name <- sprintf('policy_%s', substr(sex_sel, 1, 1))
-    points_policy[curr_pts_num, col_name] <- sum(est_coefs[var_row_sel, 'Estimate'])
-
-
-    # Calculate standard error of linear combination.
-    col_name <- sprintf('std_err_%s', substr(sex_sel, 1, 1))
-    # points_policy[curr_pts_num, col_name] <- sqrt(t(var_row_sel) %*% vcov_hccme %*% var_row_sel)
-    points_policy[curr_pts_num, col_name] <- sqrt(sum(vcov_hccme[var_row_sel, var_row_sel]))
-
-
-
-  }
-
-
-}
-
-
-
-
-
-
-################################################################################
-# Model with age interactions
-################################################################################
-
+# Select model with age interactions
 age_int <- 'with'
 
 # Select a subset of young drivers.
 age_grp_sel <- '20-24'
-# age_grp_sel <- '25-34'
-
-# [36] "policyTRUE:age_grp20-24"
-# [37] "policyTRUE:age_grp25-34"
-# [38] "policyTRUE:age_grp35-44"
-# [39] "policyTRUE:age_grp45-54"
-# [40] "policyTRUE:age_grp55-64"
-# [41] "policyTRUE:age_grp65-199"
 
 
 points_policy_w_age <- data.frame(curr_pts = curr_pts_reg_list[2:11],
@@ -229,7 +73,6 @@ points_policy_w_age <- data.frame(curr_pts = curr_pts_reg_list[2:11],
 
 
 
-# sex_sel <- 'Male'
 for (sex_sel in sex_sel_list) {
 
   print(sprintf('Calculating predictions for %s Drivers', sex_sel))
@@ -251,7 +94,7 @@ for (sex_sel in sex_sel_list) {
   # Set path for retrieving covariance matrix.
   cov_file_name <- sprintf('points_fig/cov_mat_v%d_%s_%s_age_int_%s.csv',
                            estn_version, spec_group, age_int, substr(sex_sel, 1, 1))
-  cov_file_path <- sprintf('%s/%s', md_dir, cov_file_name)
+  cov_file_path <- sprintf('%s/%s', estn_dir, cov_file_name)
 
   vcov_hccme <- read.csv(file = cov_file_path)
 
@@ -260,13 +103,6 @@ for (sex_sel in sex_sel_list) {
   vcov_hccme <- vcov_hccme[, 2:ncol(vcov_hccme)]
   vcov_hccme <- as.matrix(vcov_hccme)
 
-
-  # Verify the diagonal to ensure compatibility.
-  # sqrt(diag(vcov_hccme)) - est_coefs[, 'Std_Error']
-  # abs(sqrt(diag(vcov_hccme)) - est_coefs[, 'Std_Error']) < 10^(-19)
-  print('Covariance matrix check: Number of errors = ')
-  print(sum(!abs(sqrt(diag(vcov_hccme)) - est_coefs[, 'Std_Error']) < 10^(-15)))
-  # Confirms that the files are compatible.
 
   #------------------------------------------------------------
   # Obtain the estimates and standard errors.
@@ -282,9 +118,6 @@ for (sex_sel in sex_sel_list) {
                  sprintf('policyTRUE:curr_pts_reg%s', curr_pts_grp_sel))
 
     var_row_sel <- est_coefs[, 'Variable'] %in% var_sel
-    # est_coefs[var_row_sel, 'Variable']
-    # est_coefs[var_row_sel, 'Estimate']
-    # est_coefs[var_row_sel, 'Std_Error']
 
     col_name <- sprintf('policy_%s', substr(sex_sel, 1, 1))
     points_policy_w_age[curr_pts_num, col_name] <- sum(est_coefs[var_row_sel, 'Estimate'])
@@ -292,7 +125,6 @@ for (sex_sel in sex_sel_list) {
 
     # Calculate standard error of linear combination.
     col_name <- sprintf('std_err_%s', substr(sex_sel, 1, 1))
-    # points_policy[curr_pts_num, col_name] <- sqrt(t(var_row_sel) %*% vcov_hccme %*% var_row_sel)
     points_policy_w_age[curr_pts_num, col_name] <- sqrt(sum(vcov_hccme[var_row_sel, var_row_sel]))
 
 
@@ -303,192 +135,26 @@ for (sex_sel in sex_sel_list) {
 }
 
 
-points_policy
-points_policy_w_age
-
-
-
-################################################################################
-# Plot results
-################################################################################
-
-
 #------------------------------------------------------------
-# Model without age interactions
+# Plot Figure from Regression by Demerit Point Balance
 #------------------------------------------------------------
 
-fig_file_name <- 'points_fig/points_fig_no_age_int.eps'
-fig_file_path <- sprintf('%s/%s', md_dir, fig_file_name)
+# Set path for output of figure.
+fig_file_name <- 'demerit_points_with_age_int.eps'
+fig_file_path <- sprintf('%s/%s', fig_dir, fig_file_name)
 
 
-postscript(fig_file_path)
-# y_lims <- c(min(points_policy[, 'policy_M'] -
-#                   1.96*points_policy[, 'std_err_M'])*100000, 0)
-y_lims <- c(-30, 5)
-plot(points_policy[, 'policy_M']*100000,
-     xlab = 'Demerit-Point Balance',
-     ylab = 'Policy Effect',
-     ylim = y_lims,
-     type = 'l',
-     col = 'black',
-     lwd = 3)
-# Append standard error bands.
-lines((points_policy[, 'policy_M'] +
-         1.96*points_policy[, 'std_err_M'])*100000,
-      col = 'black',
-      lty = 'dashed',
-      lwd = 3)
-lines((points_policy[, 'policy_M'] -
-         1.96*points_policy[, 'std_err_M'])*100000,
-      col = 'black',
-      lty = 'dashed',
-      lwd = 3)
-
-# Append plots for females.
-lines((points_policy[, 'policy_F'])*100000,
-      col = 'grey',
-      lty = 'solid',
-      lwd = 3)
-lines((points_policy[, 'policy_F'] +
-         1.96*points_policy[, 'std_err_F'])*100000,
-      col = 'grey',
-      lty = 'dashed',
-      lwd = 3)
-lines((points_policy[, 'policy_F'] -
-         1.96*points_policy[, 'std_err_F'])*100000,
-      col = 'grey',
-      lty = 'dashed',
-      lwd = 3)
-
-# Plot line to denote zero effect.
-abline(h = 0,
-       col = 'black',
-       lty = 'solid',
-       lwd = 1)
-dev.off()
-
-#------------------------------------------------------------
-# Model with age interactions
-#------------------------------------------------------------
-
-
-# y_lims <- c(min(points_policy_w_age[, 'policy_M'] -
-#                   1.96*points_policy_w_age[, 'std_err_M'])*100000, 0)
-y_lims <- c(-30, 5)
-plot(points_policy_w_age[, 'policy_M']*100000,
-     xlab = 'Demerit-Point Balance',
-     ylab = 'Policy Effect',
-     ylim = y_lims,
-     type = 'l',
-     col = 'black',
-     lwd = 3)
-# Append standard error bands.
-lines((points_policy_w_age[, 'policy_M'] +
-         1.96*points_policy_w_age[, 'std_err_M'])*100000,
-      col = 'black',
-      lty = 'dashed',
-      lwd = 3)
-lines((points_policy_w_age[, 'policy_M'] -
-         1.96*points_policy_w_age[, 'std_err_M'])*100000,
-      col = 'black',
-      lty = 'dashed',
-      lwd = 3)
-
-# Append plots for females.
-lines((points_policy_w_age[, 'policy_F'])*100000,
-      col = 'grey',
-      lty = 'solid',
-      lwd = 3)
-lines((points_policy_w_age[, 'policy_F'] +
-         1.96*points_policy_w_age[, 'std_err_F'])*100000,
-      col = 'grey',
-      lty = 'dashed',
-      lwd = 3)
-lines((points_policy_w_age[, 'policy_F'] -
-         1.96*points_policy_w_age[, 'std_err_F'])*100000,
-      col = 'grey',
-      lty = 'dashed',
-      lwd = 3)
-
-# Plot line to denote zero effect.
-abline(h = 0,
-       col = 'black',
-       lty = 'solid',
-       lwd = 1)
-
-
-
-################################################################################
-# Plot graphs together with grey scale
-################################################################################
-
-
+# Set color scale.
 grey_scale <- grey.colors(n = 12, start = 0.0, end = 0.9,
                           gamma = 2.2, rev = FALSE)
 col_no_age_M <- grey_scale[1]
 col_w_age_M <- grey_scale[3]
-# col_w_age_M <- grey_scale[1]
 col_no_age_F <- grey_scale[6]
 col_w_age_F <- grey_scale[8]
-# col_w_age_F <- grey_scale[6]
 
 
-#------------------------------------------------------------
-# Model without age interactions
-#------------------------------------------------------------
-
-fig_file_name <- 'points_fig/points_fig_with_age_int.eps'
-fig_file_path <- sprintf('%s/%s', md_dir, fig_file_name)
-
-
+# Plot figure.
 postscript(fig_file_path)
-y_lims <- c(-30, 5)
-plot(points_policy[, 'policy_M']*100000,
-     xlab = 'Demerit-Point Balance',
-     ylab = 'Policy Effect',
-     ylim = y_lims,
-     type = 'l',
-     col = col_no_age_M,
-     lwd = 3)
-# Append standard error bands.
-lines((points_policy[, 'policy_M'] +
-         1.96*points_policy[, 'std_err_M'])*100000,
-      col = col_no_age_M,
-      lty = 'dashed',
-      lwd = 3)
-lines((points_policy[, 'policy_M'] -
-         1.96*points_policy[, 'std_err_M'])*100000,
-      col = col_no_age_M,
-      lty = 'dashed',
-      lwd = 3)
-
-# Append plots for females.
-lines((points_policy[, 'policy_F'])*100000,
-      col = col_no_age_F,
-      lty = 'solid',
-      lwd = 3)
-lines((points_policy[, 'policy_F'] +
-         1.96*points_policy[, 'std_err_F'])*100000,
-      col = col_no_age_F,
-      lty = 'dashed',
-      lwd = 3)
-lines((points_policy[, 'policy_F'] -
-         1.96*points_policy[, 'std_err_F'])*100000,
-      col = col_no_age_F,
-      lty = 'dashed',
-      lwd = 3)
-
-# Plot line to denote zero effect.
-abline(h = 0,
-       col = 'black',
-       lty = 'solid',
-       lwd = 1)
-
-
-#------------------------------------------------------------
-# Model with age interactions
-#------------------------------------------------------------
-
 lines(points_policy_w_age[, 'policy_M']*100000,
      col = col_w_age_M,
      lty = 'dotdash',
@@ -523,6 +189,110 @@ lines((points_policy_w_age[, 'policy_F'] -
 dev.off()
 
 
-################################################################################
+############################################################
+# Plot Figure from Event Study
+############################################################
+
+# Read in the estimates.
+# Specification: event study
+spec_group <- 'events'
+estn_file_name <- sprintf('estimates_%s.csv', spec_group)
+estn_file_path <- sprintf('%s/%s', estn_dir, estn_file_name)
+estn_results <- read.csv(file = estn_file_path)
+
+# Select the relevant estimates.
+mfx_males <- estn_results[estn_results[, 'sex'] == 'Male' &
+                              estn_results[, 'reg_type'] == 'LPM' &
+                              estn_results[, 'age_int'] == 'no', ]
+mfx_females <- estn_results[estn_results[, 'sex'] == 'Female' &
+                                estn_results[, 'reg_type'] == 'LPM' &
+                                estn_results[, 'age_int'] == 'no', ]
+
+
+# Create the time series of policy effects.
+perm_males <- mfx_males[mfx_males[, 'Variable'] == 'policyTRUE', 'Estimate']
+first_yr_males <- mfx_males[
+  substr(mfx_males[, 'Variable'], 1, 18) == 'policy_monthpolicy', 'Estimate']
+first_yr_males <- c(first_yr_males, rep(0, 12)) + perm_males
+
+# Repeat for standard errors.
+perm_males_SE <- mfx_males[mfx_males[, 'Variable'] == 'policyTRUE', 'Std_Error']
+first_yr_males_SE <- mfx_males[
+  substr(mfx_males[, 'Variable'], 1, 18) == 'policy_monthpolicy', 'Std_Error']
+first_yr_males_SE <- c(first_yr_males_SE, rep(0, 12)) + perm_males_SE
+
+
+
+perm_females <- mfx_females[mfx_females[, 'Variable'] == 'policyTRUE', 'Estimate']
+first_yr_females <- mfx_females[
+  substr(mfx_females[, 'Variable'], 1, 18) == 'policy_monthpolicy', 'Estimate']
+first_yr_females <- c(first_yr_females, rep(0, 12)) + perm_females
+
+# Repeat for standard errors.
+perm_females_SE <- mfx_females[mfx_females[, 'Variable'] == 'policyTRUE', 'Std_Error']
+first_yr_females_SE <- mfx_females[
+  substr(mfx_females[, 'Variable'], 1, 18) == 'policy_monthpolicy', 'Std_Error']
+first_yr_females_SE <- c(first_yr_females_SE, rep(0, 12)) + perm_females_SE
+
+
+
+
+#------------------------------------------------------------
+# Plot Figure from Event Study
+#------------------------------------------------------------
+
+
+# Set file location for this figure.
+fig_file_name <- sprintf('%s/event_study.eps',
+                         fig_path)
+
+# Set colors.
+color_list <- grey.colors(n = 2, start = 0.3, end = 0.6)
+
+setEPS()
+postscript(fig_file_name)
+
+
+# Set axes.
+plot(NA,
+     xlim = c(1, 24),
+     ylim = c(-20, 10),
+     xlab = "Months Since Policy Change",
+     ylab = "Policy Effect x 100,000",
+     # main = c("Salary Comparison for Business Analytics Students*"),
+     # cex.main = 1.60, cex.lab = 1.5, cex.axis = 1.5
+     xaxt = "n"
+)
+axis(side = 1, at = seq(3, 24, by = 3)) #, labels = FALSE)
+abline(h = 0, lwd = 1, col = 'black', lty = 'solid')
+
+
+
+# Plot curves for males.
+# lines(seq(13, 24), rep(perm_males*100000, 12), lwd = 3, col = color_list[1], lty = 'solid')
+lines(seq(24), first_yr_males*100000, lwd = 3, col = color_list[1], lty = 'solid')
+# Plot SE bands for males.
+lines(seq(24), (first_yr_males + 1.96*first_yr_males_SE)*100000,
+      lwd = 3, col = color_list[1], lty = 'dashed')
+lines(seq(24), (first_yr_males - 1.96*first_yr_males_SE)*100000,
+      lwd = 3, col = color_list[1], lty = 'dashed')
+
+
+
+# Plot curves for females.
+# lines(seq(13, 24), rep(perm_females*100000, 12), lwd = 3, col = color_list[2], lty = 'dashed')
+lines(seq(24), first_yr_females*100000, lwd = 3, col = color_list[2], lty = 'solid')
+# Plot SE bands for females.
+lines(seq(24), (first_yr_females + 1.96*first_yr_females_SE)*100000,
+      lwd = 3, col = color_list[2], lty = 'dashed')
+lines(seq(24), (first_yr_females - 1.96*first_yr_females_SE)*100000,
+      lwd = 3, col = color_list[2], lty = 'dashed')
+
+
+dev.off()
+
+
+
+############################################################
 # End
-################################################################################
+############################################################

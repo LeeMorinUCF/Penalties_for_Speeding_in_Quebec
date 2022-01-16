@@ -1,47 +1,36 @@
 ################################################################################
 #
-# Investigation of SAAQ Traffic Ticket Violations
+# Analysis of Penalties for Speeding in Quebec
 #
-# Logistic and linear probability models of numbers of tickets awarded by the
-# number of points per ticket.
-#
-#
+# Creating LaTeX Tables from Regression Models
 #
 # Lealand Morin, Ph.D.
 # Assistant Professor
 # Department of Economics
-# College of Business
+# College of Business Administration
 # University of Central Florida
 #
-# December 10, 2021
+# January 7, 2022
 #
 ################################################################################
 #
-# Analyzed data from traffic violations, and licensee data.
-# Aggregated data by demerit point value for each date, sex and age category.
-# Estimate logistic and linear probability models for sets of offenses.
-# Identify discontinuity from policy change on April 1, 2008.
-# Excessive speeding offenses were assigned double demerit points.
+# This script is part of the code base to accompany the manuscript
+# "Penalties for Speeding and their Effect on Moving Violations:
+# Evidence from Quebec Drivers"
+# by Chandler, Morin, and Penney
+# in the *Canadian Journal of Economics*, 2022
 #
-# This version includes a number of modifications for a revise and resubmit decision.
-# It contains the full estimation results to appear in the manuscript.
-#
-# Previous versions also created a function for each table to enable
-# quick replacement of tables for sensitivity analysis.
-# Previous versions added marginal effects to the logistic regressions.
-# A previous version adds tables for separate regressions by age.
-# This version separates the function library and
-# calls only the main function.
+# All scripts are available on the GitHub code repository
+# "Penalties_for_Speeding_in_Quebec"
+# available at the following link:
+# https://github.com/LeeMorinUCF/Penalties_for_Speeding_in_Quebec
+# Any updates will be available on the GitHub code repository.
 #
 ################################################################################
 
-
 ################################################################################
-# Clearing Workspace and Declaring Packages
+# Declaring Packages
 ################################################################################
-
-# Clear workspace.
-# rm(list=ls(all=TRUE))
 
 # The scales package can print large sample sizes in comma format.
 library(scales)
@@ -51,58 +40,14 @@ library(scales)
 # Set parameters for file IO
 ################################################################################
 
-
-
-# Set working directory, if running interactively.
-drive_path <- 'C:/Users/le279259/OneDrive - University of Central Florida/Documents'
-git_path <- 'Research/SAAQ/SAAQspeeding/SAAQ_XS_de_Vitesse_2008'
-wd_path <- sprintf('%s/%s',drive_path, git_path)
-setwd(wd_path)
-
-# Set methodology for zero-ticket population count:
-# adj (unadjusted zero counts, intended for stacked join) or
-# zero_count_method <- 'adj'
-# unadj (adjusted zero counts, intended for differenced join)
-zero_count_method <- 'unadj'
-
-# Set join methodology:
-# all (stacked, intended for unadjusted zero counts) or
-# join_method <- 'all'
-# net (differenced, intended for adjusted zero counts)
-# join_method <- 'net'
-# Original join method, like 'all' but with balances
-# calculated in a way that accurately records the aging
-# of drivers throughout the sample.
-# This original version merges younger age categories.
-# join_method <- 'orig'
-# This original version keeps the same age categories.
-join_method <- 'orig_agg'
-
-
-# Set version of input files.
-# data_in_method <- 'all_unadj'
-data_in_method <- sprintf('%s_%s', join_method, zero_count_method)
-
-
 # Set path for estimation results.
-estn_path <- 'Estn'
-estn_dir <- sprintf("%s/results_%s", estn_path, data_in_method)
-
-
-# Set directory for results in GitHub repo.
-# md_dir <- sprintf("%s/results", git_path)
-
-
-
-
-
+estn_dir <- 'Estn'
 
 # Set directory for Tables.
-# tab_dir <- sprintf("%s/Tables", git_path)
-tab_dir <- sprintf("%s/tables", estn_dir)
+tab_dir <- "Tables"
 
 # Read library of functions for generating LaTeX tables.
-tab_lib_path <- "Code/SAAQ_Tab_Lib1.R"
+tab_lib_path <- "Code/Lib/SAAQ_Tab_Lib.R"
 source(tab_lib_path)
 
 
@@ -111,18 +56,6 @@ source(tab_lib_path)
 ################################################################################
 
 
-
-#------------------------------------------------------------
-# Pooled regressions with separation by age group.
-#------------------------------------------------------------
-
-# spec_group <- 'pooled'
-#
-# estn_version <- 11
-# estn_file_name <- sprintf('estimates_v%d_%s.csv', estn_version, spec_group)
-# estn_file_path <- sprintf('%s/%s', estn_dir, estn_file_name)
-# estn_results_by_age <- read.csv(file = estn_file_path)
-# summary(estn_results_by_age)
 
 
 #------------------------------------------------------------
@@ -169,7 +102,7 @@ summary(estn_results_placebo)
 
 
 #------------------------------------------------------------
-# Specification: REAL event study with seasonality
+# Specification: Event study with seasonality
 #------------------------------------------------------------
 
 spec_group <- 'events'
@@ -179,19 +112,6 @@ estn_file_name <- sprintf('estimates_v%d_%s.csv', estn_version, spec_group)
 estn_file_path <- sprintf('%s/%s', estn_dir, estn_file_name)
 estn_results_events <- read.csv(file = estn_file_path)
 summary(estn_results_events)
-
-
-
-#------------------------------------------------------------
-# Dataset with sample sizes.
-#------------------------------------------------------------
-
-# # Set version of output file.
-# estn_version <- 1
-# estn_file_name <- sprintf('sampl_sizes_v%d.csv', estn_version)
-# estn_file_path <- sprintf('%s/%s', md_dir, estn_file_name)
-# sampl_sizes <- read.csv(file = estn_file_path)
-
 
 
 ################################################################################
@@ -262,8 +182,6 @@ points_label_list <- data.frame(Variable = pts_target_list,
 
 
 # Create list of labels for policy*month interactions.
-# event_month_sel <- substr(estn_results_events[, 'Variable'], 1, 12) == 'policy_month'
-# event_month_list <- unique(estn_results_events[event_month_sel, 'Variable'])
 event_month_list <- sprintf('policy_monthpolicy%s',
                             c(sprintf('0%d', seq(9)), c('10', '11', '12')))
 events_label_list <- data.frame(Variable = event_month_list,
@@ -311,9 +229,6 @@ Logit_LPM_pts_description <- c(
   "and is otherwise equal to zero.",
   "The categories of tickets with 3, 5 and 7 points includes tickets ",
   "with 6, 10 and 14 points after the policy change, respectively, ",
-  # "The 3-point category of tickets includes 6-point tickets after the policy change, ",
-  # "The 5-point category of tickets includes 10-point tickets after the policy change, ",
-  # "the 7-point category includes 14-point tickets after the policy change, ",
   "and the category with 9 or more points includes tickets ",
   "with all corresponding doubled values after the policy change.",
   "All regressions contain age category and demerit point category controls,",
@@ -328,8 +243,6 @@ Logit_LPM_pts_description <- c(
 )
 
 
-
-source(tab_lib_path)
 
 # Generate tables.
 SAAQ_Logit_vs_LPM_2MFX_table_gen(tab_dir, tab_tag, header_spec,

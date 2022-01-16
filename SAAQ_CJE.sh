@@ -4,6 +4,8 @@
 #
 # Analysis of Penalties for Speeding in Quebec
 #
+# Main Script
+#
 # Lealand Morin, Ph.D.
 # Assistant Professor
 # Department of Economics
@@ -11,6 +13,20 @@
 # University of Central Florida
 #
 # January 7, 2022
+#
+################################################################################
+#
+# This script is part of the code base to accompany the manuscript
+# "Penalties for Speeding and their Effect on Moving Violations:
+# Evidence from Quebec Drivers"
+# by Chandler, Morin, and Penney
+# in the *Canadian Journal of Economics*, 2022
+#
+# All scripts are available on the GitHub code repository
+# "Penalties_for_Speeding_in_Quebec"
+# available at the following link:
+# https://github.com/LeeMorinUCF/Penalties_for_Speeding_in_Quebec
+# Any updates will be available on the GitHub code repository.
 #
 ################################################################################
 
@@ -71,10 +87,10 @@ echo ""
 echo "Renaming figures for CJE naming conventions..."
 echo ""
 
-mv Figures/num_pts_5_10_all.eps Figures/Figure1.eps
-mv Figures/num_pts_7_14_all.eps Figures/Figure2.eps
-mv Figures/points_fig_with_age_int.eps Figures/Figure3.eps
-mv Figures/Event_Study.eps Figures/Figure4.eps
+mv Figures/num_pts_5_10.eps Figures/Figure1.eps
+mv Figures/num_pts_7_14.eps Figures/Figure2.eps
+mv Figures/demerit_points_with_age_int.eps.eps Figures/Figure3.eps
+mv Figures/event_study.eps Figures/Figure4.eps
 
 
 echo "Finished generating tables and figures."

@@ -18,16 +18,23 @@ perform the following operations:
     produces tables of estimates from the results in
     the ```Estn``` folder. 
     These tables are all output to the ```Tables``` folder. 
-1.  The script ```SAAQ_estn_figs.R``` produces the
+1.  Run the script ```SAAQ_Estn_Figs.R```, which
+    produces the
     figures from the estimation of the event studies and 
     the estimation with granular demerit-point categories.
-    These figures are output to the ```Figures``` folder, 
-    which are ultimately named 
+    These figures are output to the ```Figures``` folder
+    and are ultimately named 
     ```Figure3.eps``` and ```Figure4.eps```. 
-1.  The script ```SAAQ_count_figs.R``` produces the
+1.  Run the script ```SAAQ_Count_Figs.R```, which 
+    produces the
     figures of the frequency of tickets
     from aggregate data by month. 
-    This produces ```Figure1.eps``` and ```Figure2.eps```,
-    which are both output to the ```Figures``` folder, 
+    This produces ```num_pts_5_10.eps``` 
+    and ```num_pts_7_14.eps```,
+    which are both output to the ```Figures``` folder
+    and are ultimately named 
+    ```Figure1.eps``` and ```Figure2.eps```. 
+    It also outputs a dataset ```.csv``` which is used to calculate
+    the summary statistics in Table 2. 
     
 
