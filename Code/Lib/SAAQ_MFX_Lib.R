@@ -1,13 +1,43 @@
+################################################################################
+#
+# Analysis of Penalties for Speeding in Quebec
+#
+# Function Definitions for Marginal Effects
+#
+# Lealand Morin, Ph.D.
+# Assistant Professor
+# Department of Economics
+# College of Business Administration
+# University of Central Florida
+#
+# January 7, 2022
+#
+################################################################################
+#
+# This script is part of the code base to accompany the manuscript
+# "Penalties for Speeding and their Effect on Moving Violations:
+# Evidence from Quebec Drivers"
+# by Chandler, Morin, and Penney
+# in the *Canadian Journal of Economics*, 2022
+#
+# All scripts are available on the GitHub code repository
+# "Penalties_for_Speeding_in_Quebec"
+# available at the following link:
+# https://github.com/LeeMorinUCF/Penalties_for_Speeding_in_Quebec
+# Any updates will be available on the GitHub code repository.
+#
+################################################################################
+
 
 ############################################################
-# Functions for calculating marginal effects.
-# Only meaningful for logit regressions.
+# Function definitions
 ############################################################
 
-############################################################
+
+#------------------------------------------------------------
 # Calculate marginal effects, if appropriate.
 # Only meaningful for logit regressions.
-############################################################
+#------------------------------------------------------------
 
 mfx_mat_calc <- function(saaq_data,
                          log_model_1,
@@ -21,8 +51,6 @@ mfx_mat_calc <- function(saaq_data,
   sel_obs <- saaq_data[, 'sel_obsn']
 
   # Set selected variables for MER calculation.
-  # mfx_data_MER_adj <- mfx_data_MER[, c(var_list, "num")]
-  # Extra columns don't matter.
   mfx_data_MER_adj <- mfx_data_MER
   # Adjust sex variables, if necessary.
   if ("sex" %in% var_list) {
@@ -44,8 +72,6 @@ mfx_mat_calc <- function(saaq_data,
     # Only policy MFX required for tables.
     # But add MFX for age groups.
     #------------------------------------------------------------
-    # mfx_mat = data.frame(AME = NA, MER = NA)
-    # rownames(mfx_mat) <- 'policyTRUE'
     mfx_mat = data.frame(AME = rep(NA, length(age_grp_list)),
                          MER = rep(NA, length(age_grp_list)))
     rownames(mfx_mat) <- c('policyTRUE',
@@ -102,8 +128,6 @@ mfx_mat_calc <- function(saaq_data,
                                    paste(mfx_fmla_list, collapse = ' + ')))
 
 
-    # mfx_age_num <- 1
-    # mfx_age_num <- 2
     for (mfx_age_num in 1:length(age_grp_list)) {
 
       #------------------------------------------------------------
@@ -176,8 +200,6 @@ mfx_mat_calc <- function(saaq_data,
                                    paste(mfx_fmla_list, collapse = ' + ')))
 
 
-    # mfx_month_num <- 1
-    # mfx_month_num <- 2
     for (mfx_month_num in seq(13)) {
 
       #------------------------------------------------------------
@@ -303,7 +325,7 @@ mfx_mat_calc <- function(saaq_data,
   }
 
   #------------------------------------------------------------
-  # Gross up to same units as the linear probability model.
+  # Gross up to same units as in the linear probability model.
   mfx_mat <- mfx_mat*100000
   #------------------------------------------------------------
 
@@ -314,17 +336,15 @@ mfx_mat_calc <- function(saaq_data,
 
 
 
-############################################################
+#------------------------------------------------------------
 # Taking differences for AME calculation
-############################################################
-
+#------------------------------------------------------------
 
 mfx_AME_diff <- function(saaq_data_pred, log_model_1,
                          mfx_var = 'policy',
                          before_val = FALSE, after_val = TRUE) {
 
   # Calculate average prediction before policy change.
-  # saaq_data_pred[, 'policy'] <- FALSE
   saaq_data_pred[, mfx_var] <- before_val
   saaq_data_pred[, 'pred_prob_before'] <- predict(log_model_1,
                                                   newdata = saaq_data_pred,
@@ -333,7 +353,6 @@ mfx_AME_diff <- function(saaq_data_pred, log_model_1,
                        saaq_data_pred[, 'num']) / sum(saaq_data_pred[, 'num'])
 
   # Calculate average prediction after policy change.
-  # saaq_data_pred[, 'policy'] <- TRUE
   saaq_data_pred[, mfx_var] <- after_val
   saaq_data_pred[, 'pred_prob_after'] <- predict(log_model_1,
                                                  newdata = saaq_data_pred,
@@ -349,18 +368,18 @@ mfx_AME_diff <- function(saaq_data_pred, log_model_1,
 }
 
 
-############################################################
+#------------------------------------------------------------
 # Define logistic transformation for producing probabilities.
-############################################################
+#------------------------------------------------------------
 
 logit_link <- function(X_beta) {
   return( exp(X_beta) / (1 + exp(X_beta)) )
 }
 
 
-############################################################
+#------------------------------------------------------------
 # Calculating cross-differences for models with interactions
-############################################################
+#------------------------------------------------------------
 
 mfx_AME_cross_diff <- function(saaq_data_pred, log_model_1,
                                cross_coefficient) {
@@ -370,7 +389,6 @@ mfx_AME_cross_diff <- function(saaq_data_pred, log_model_1,
 
 
   # Calculate average prediction before policy change.
-  # saaq_data_pred[, 'policy'] <- FALSE
   # Measure this in probabilities, as is (type = "response").
   saaq_data_pred[, 'pred_prob_before'] <- predict(log_model_1,
                                                   newdata = saaq_data_pred,
@@ -379,7 +397,6 @@ mfx_AME_cross_diff <- function(saaq_data_pred, log_model_1,
                        saaq_data_pred[, 'num']) / sum(saaq_data_pred[, 'num'])
 
   # Calculate average prediction after policy change.
-  # saaq_data_pred[, 'policy'] <- TRUE
   # Measure this in the single index level, as is (type = "link").
   saaq_data_pred[, 'pred_prob_after'] <- predict(log_model_1,
                                                  newdata = saaq_data_pred,

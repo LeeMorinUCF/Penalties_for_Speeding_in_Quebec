@@ -1,12 +1,42 @@
-
-
 ################################################################################
-# Define Functions for Regression Modeling
+#
+# Analysis of Penalties for Speeding in Quebec
+#
+# Helper Function Definitions for Regression Modeling
+#
+# Lealand Morin, Ph.D.
+# Assistant Professor
+# Department of Economics
+# College of Business Administration
+# University of Central Florida
+#
+# January 7, 2022
+#
 ################################################################################
+#
+# This script is part of the code base to accompany the manuscript
+# "Penalties for Speeding and their Effect on Moving Violations:
+# Evidence from Quebec Drivers"
+# by Chandler, Morin, and Penney
+# in the *Canadian Journal of Economics*, 2022
+#
+# All scripts are available on the GitHub code repository
+# "Penalties_for_Speeding_in_Quebec"
+# available at the following link:
+# https://github.com/LeeMorinUCF/Penalties_for_Speeding_in_Quebec
+# Any updates will be available on the GitHub code repository.
+#
+################################################################################
+
 
 ############################################################
+# Function definitions
+############################################################
+
+
+#------------------------------------------------------------
 # Check for negative predictions from LPM
-############################################################
+#------------------------------------------------------------
 
 lpm_neg_check <- function(lm_model) {
   # Checking for negative LPM predictions.
@@ -24,9 +54,9 @@ lpm_neg_check <- function(lm_model) {
 }
 
 
-############################################################
+#------------------------------------------------------------
 # Set List of Regression Specifications
-############################################################
+#------------------------------------------------------------
 
 model_spec <- function(spec_group,
                        sex_list, age_grp_list, age_int_list,
@@ -65,7 +95,6 @@ model_spec <- function(spec_group,
                               pts_int = 'no', # Extra column.
                               pts_target = pts_target_list,
                               sex = c('Male', 'Female'),
-                              # sex = sex_list,
                               reg_type = reg_list)
 
     # Remove some unnecessary combinations.
@@ -82,16 +111,12 @@ model_spec <- function(spec_group,
 
     # Set the partial list of model specification combinations.
     model_list <- expand.grid(past_pts = c('high'),
-                              # past_pts = c('all'),
                               window = c('4 yr.'),
                               seasonality = c('mnwk'),
-                              # age_int = age_int_list,
                               age_int = 'no',
                               pts_int = 'no', # Extra column.
-                              # pts_target = c('all'),
                               pts_target = pts_target_list,
                               sex = c('Male', 'Female'),
-                              # sex = sex_list,
                               reg_type = reg_list)
 
 
@@ -110,9 +135,7 @@ model_spec <- function(spec_group,
                               age_int = age_int_list,
                               pts_int = 'no', # Extra column.
                               pts_target = c('all'),
-                              # pts_target = pts_target_list,
                               sex = c('Male', 'Female'),
-                              # sex = sex_list,
                               reg_type = reg_list)
 
   } else if (spec_group == 'events') {
@@ -125,13 +148,10 @@ model_spec <- function(spec_group,
     model_list <- expand.grid(past_pts = c('all'),
                               window = c('Monthly 4 yr.'),
                               seasonality = c('mnwk'),
-                              # age_int = age_int_list,
                               age_int = 'no',
                               pts_int = 'no', # Extra column.
-                              # pts_target = pts_target_list,
                               pts_target = 'all',
                               sex = c('Male', 'Female'),
-                              # sex = sex_list,
                               reg_type = reg_list)
 
 
@@ -146,14 +166,9 @@ model_spec <- function(spec_group,
                               window = c('4 yr.'),
                               seasonality = c('mnwk'),
                               age_int = age_int_list,
-                              # age_int = 'no',
                               pts_int = 'with', # Extra column.
-                              # pts_int = c('with', 'full'), # Extra column.
-                              # pts_target = pts_target_list,
                               pts_target = 'all',
                               sex = c('Male', 'Female'),
-                              # sex = sex_list,
-                              # reg_type = reg_list,
                               reg_type = 'LPM') # MFX not implemented yet.
     # Note the extra column for demerit-point interactions.
 
@@ -167,9 +182,9 @@ model_spec <- function(spec_group,
 }
 
 
-############################################################
+#------------------------------------------------------------
 # Set paths and headers for regression output to markdown files.
-############################################################
+#------------------------------------------------------------
 
 
 md_headers <- function(md_dir, md_path_last,
@@ -207,8 +222,6 @@ md_headers <- function(md_dir, md_path_last,
     print(sprintf("Estimating for folder %s.", md_sub_dir))
     print(sprintf("Estimating for file %s.", md_file_name))
 
-    # title_str <- sprintf('%s Estimates for %s Drivers',
-    #                      reg_type, sex_sel)
     if (reg_type == 'LPM') {
       cat(sprintf('# Linear Probability Models - %s Drivers\n\n', sex_sel),
           file = md_path, append = FALSE)
@@ -246,9 +259,9 @@ md_headers <- function(md_dir, md_path_last,
 }
 
 
-############################################################
+#------------------------------------------------------------
 # Print regression results to markdown files.
-############################################################
+#------------------------------------------------------------
 
 md_reg_out <- function(md_path,
                        est_coefs,
@@ -296,10 +309,10 @@ md_reg_out <- function(md_path,
 
 }
 
-############################################################
+#------------------------------------------------------------
 # Data preparation.
 # Calculate variables specific to the model specification.
-############################################################
+#------------------------------------------------------------
 
 saaq_data_prep <- function(saaq_data,
                            window_sel,
@@ -360,104 +373,53 @@ saaq_data_prep <- function(saaq_data,
   #--------------------------------------------------
 
   if (window_sel == 'Monthly 4 yr.') {
-    # Two definitions, one is much more efficient:
     saaq_data[, 'policy_month'] <- NA_character_
-    # saaq_data[saaq_data[, 'date'] < april_fools_date, 'policy_month'] <- "policyFALSE"
     saaq_data[date < april_fools_date, policy_month := "policyFALSE"]
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] >= as.Date('2009-04-01'), 'policy_month'] <- "policyFALSE"
     saaq_data[date >= april_fools_date &
                 date >= as.Date('2009-04-01'), policy_month := "policyFALSE"]
-    # First definition: Policy and month of year (yes, confusing but easy).
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01'), 'policy_month'] <-
-    #   sprintf("policy%s", saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #                                   saaq_data[, 'date'] < as.Date('2009-04-01'), 'month'])
-    # Second definition: Policy and month of year (yes, confusing but easy).
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '04', 'policy_month'] <- 'policy01'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '04', policy_month := 'policy01']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '05', 'policy_month'] <- 'policy02'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '05', policy_month := 'policy02']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '06', 'policy_month'] <- 'policy03'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '06', policy_month := 'policy03']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '07', 'policy_month'] <- 'policy04'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '07', policy_month := 'policy04']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '08', 'policy_month'] <- 'policy05'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '08', policy_month := 'policy05']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '09', 'policy_month'] <- 'policy06'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '09', policy_month := 'policy06']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '10', 'policy_month'] <- 'policy07'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '10', policy_month := 'policy07']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '11', 'policy_month'] <- 'policy08'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '11', policy_month := 'policy08']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '12', 'policy_month'] <- 'policy09'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '12', policy_month := 'policy09']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '01', 'policy_month'] <- 'policy10'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '01', policy_month := 'policy10']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '02', 'policy_month'] <- 'policy11'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '02', policy_month := 'policy11']
-    # saaq_data[saaq_data[, 'date'] >= april_fools_date &
-    #             saaq_data[, 'date'] < as.Date('2009-04-01') &
-    #             saaq_data[, 'month'] == '03', 'policy_month'] <- 'policy12'
     saaq_data[date >= april_fools_date &
                 date < as.Date('2009-04-01') &
                 month == '03', policy_month := 'policy12']
-    # In either case, transform it into factor.
-    # saaq_data[, 'policy_month'] <- factor(saaq_data[, 'policy_month'],
-    #                                       levels = c('policyFALSE',
-    #                                                  sprintf('policy0%d', 1:9),
-    #                                                  sprintf('policy%d', 10:12)))
+    # Transform it into factor.
     saaq_data[, policy_month := factor(policy_month,
                                        levels = c('policyFALSE',
                                                   sprintf('policy0%d', 1:9),
                                                   sprintf('policy%d', 10:12)))]
 
 
-    # table(saaq_data[, 'policy_month'], useNA = 'ifany')
   }
 
 
@@ -558,9 +520,7 @@ saaq_data_prep <- function(saaq_data,
 
   } else if (pts_target == '9+') {
 
-    # Nine point speeding violations and up (excluding the 10s and 14s above).
-    # saaq_data[, 'events'] <- saaq_data[, 'points'] %in% c(9, 12, 15, 18, 21,
-    #                                                       24, 30, 36)
+    # Nine-point speeding violations and up (excluding the 10s and 14s above).
     saaq_data[, events := points %in% c(9, 12, 15, 18, 21, 24, 30, 36)]
 
   } else {
@@ -575,9 +535,9 @@ saaq_data_prep <- function(saaq_data,
 }
 
 
-############################################################
+#------------------------------------------------------------
 # Set formula for regression model
-############################################################
+#------------------------------------------------------------
 
 reg_var_list <- function(sex_sel,
                      window_sel,
@@ -586,9 +546,6 @@ reg_var_list <- function(sex_sel,
                      season_incl) {
 
   if (sex_sel == 'All') {
-    # If sex variables included.
-    # var_list <- c('policy', 'sex', 'sex*policy')
-    # If same model estimated as that with subsamples separated by sex.
     var_list <- c('policy')
   } else if (sex_sel %in% c('Male', 'Female')) {
     var_list <- c('policy')
@@ -601,11 +558,9 @@ reg_var_list <- function(sex_sel,
   }
 
   if (age_int == 'with') {
-    # var_list <- c(var_list, 'policy*age_grp')
     var_list <- c(var_list, 'age_grp', 'policy*age_grp')
   } else if (age_int == 'no') {
     # no variables added, except age.
-    # var_list <- var_list
     var_list <- c(var_list, 'age_grp')
   } else if (age_int %in% age_grp_list) {
     # no variables added.
@@ -617,9 +572,6 @@ reg_var_list <- function(sex_sel,
 
   if (pts_int == 'with') {
     var_list <- c(var_list, 'curr_pts_reg', 'policy*curr_pts_reg')
-    # } else if (pts_int == 'full' & 'hell no' == TRUE) {
-    #   var_list <- c(var_list, 'curr_pts_reg', 'policy*curr_pts_reg',
-    #                 'policy*age_grp*curr_pts_reg') # Requires a lot of memory.
   } else if (pts_int == 'no') {
     var_list <- c(var_list, 'curr_pts_grp')
     # Use coarser groupings without interactions.
@@ -646,17 +598,18 @@ reg_var_list <- function(sex_sel,
 
 
 
-############################################################
+#------------------------------------------------------------
 # Calculate sandwich SE estimator for QMLE.
-############################################################
+#------------------------------------------------------------
 
 est_coefs_QMLE <- function(V, y, num_weights, p, X) {
 
   # The MLE covariance estimator is the inverse Hessian matrix.
-  # This is the bread of the sandwich.
+  # This is the bread of the sandwich, calculated from:
   # V = vcov(log_model_1)
 
   # Now calculate OPG.
+  # Outcome and weights passed to function, calculated from:
   # y <- as.integer(saaq_data[sel_obs, 'events'])
   # num_weights <- saaq_data[sel_obs, 'num']
   num_obs <- sum(num_weights)
@@ -666,13 +619,12 @@ est_coefs_QMLE <- function(V, y, num_weights, p, X) {
   g <- (y-p) * sqrt(num_weights)
   # Note that the outer product will get back the weights.
 
-  # The full design matrix:
+  # The full design matrix, calculated from:
   # X <- model.matrix(log_model_1)
   kX <- ncol(X)
   Xg <- X * matrix(rep(g, each = kX), ncol = kX, byrow = TRUE)
 
   # This is the meat of the sandwich.
-  # XppX <- t(Xg) %*% X
   XppX <- t(Xg) %*% Xg
 
 
@@ -692,9 +644,9 @@ est_coefs_QMLE <- function(V, y, num_weights, p, X) {
 }
 
 
-############################################################
+#------------------------------------------------------------
 # Store the regression results for tables.
-############################################################
+#------------------------------------------------------------
 
 estn_results_table <- function(est_coefs, estn_num,
                                num_obs,
@@ -726,14 +678,6 @@ estn_results_table <- function(est_coefs, estn_num,
   # Calculate MFX, if appropriate.
   if (reg_type == 'Logit') {
 
-    # Easy way:
-    # Make the rownames match in both tables.
-    # estn_results_sub[rownames(mfx_mat), c('AME', 'MER')] <- mfx_mat[, c('AME', 'MER')]
-    # But that requires changing the rownames.
-
-    # Instead, assign values by subset.
-
-
     # Policy MFX required for all tables.
     estn_results_sub[estn_results_sub[, 'Variable'] == 'policyTRUE',
                      c('AME', 'MER')] <- mfx_mat[1, c('AME', 'MER')]
@@ -741,21 +685,10 @@ estn_results_table <- function(est_coefs, estn_num,
 
     if ((age_int %in% c('no', age_grp_list)) &
         !(window_sel == 'Monthly 4 yr.')) {
-      # # Only policy MFX required for tables.
-      # estn_results_sub[estn_results_sub[, 'Variable'] == 'policyTRUE',
-      #                  c('AME', 'MER')] <- mfx_mat[1, c('AME', 'MER')]
 
 
     } else if ((age_int == 'with') &
                !(window_sel == 'Monthly 4 yr.')) {
-      # # Both policy and policy-age MFX required for tables.
-      # estn_results_sub[estn_results_sub[, 'Variable'] == 'policyTRUE',
-      #                  c('AME', 'MER')] <- mfx_mat[1, c('AME', 'MER')]
-      # estn_results_sub[
-      #   substr(estn_results_sub[, 'Variable'], 1, 18) == 'policyTRUE:age_grp',
-      #   c('AME', 'MER')] <- mfx_mat[2:nrow(mfx_mat), c('AME', 'MER')]
-
-      # Base it on contents of model and mfx_mat.
       estn_row_sel <-
         substr(estn_results_sub[, 'Variable'], 1, 18) == 'policyTRUE:age_grp'
       mfx_row_sel <- substr(rownames(mfx_mat), 1, 18) == 'policyTRUE:age_grp'
@@ -765,12 +698,6 @@ estn_results_table <- function(est_coefs, estn_num,
 
     } else if ((age_int == 'no') &
                (window_sel == 'Monthly 4 yr.')) {
-      # # Both policy and policy-month MFX required for tables.
-      # estn_results_sub[estn_results_sub[, 'Variable'] == 'policyTRUE',
-      #                  c('AME', 'MER')] <- mfx_mat[1, c('AME', 'MER')]
-      # estn_results_sub[
-      #   substr(estn_results_sub[, 'Variable'], 1, 12) == 'policy_month',
-      #   c('AME', 'MER')] <- mfx_mat[2:nrow(mfx_mat), c('AME', 'MER')]
 
       estn_row_sel <-
         substr(estn_results_sub[, 'Variable'], 1, 12) == 'policy_month'
