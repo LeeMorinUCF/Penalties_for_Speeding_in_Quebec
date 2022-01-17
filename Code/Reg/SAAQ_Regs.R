@@ -45,7 +45,7 @@ library(data.table)
 data_dir <- 'Data'
 
 # Set name of input file for estimation samples.
-data_file_name <- sprintf('%s/saaq_full.csv', data_dir)
+data_file_name <- sprintf('%s/SAAQ_full.csv', data_dir)
 
 
 # Set path for estimation results.

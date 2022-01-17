@@ -1,34 +1,40 @@
+
 ################################################################################
 #
-# Investigation of SAAQ Excessive Speeding Laws
+# Analysis of Penalties for Speeding in Quebec
 #
-# Construction of a series of numbers of drivers in sex and age categories
-# who were NOT awarded tickets.
-# Dataset is used for joining non-events to ticket events.
+# Calculates the number of drivers
+# in each gender and age group category
 #
-#
-#
-# Lee Morin, Ph.D.
+# Lealand Morin, Ph.D.
 # Assistant Professor
 # Department of Economics
-# College of Business
+# College of Business Administration
 # University of Central Florida
 #
-# June 9, 2021
+# January 7, 2022
 #
 ################################################################################
 #
-# Load data from licensee data on SAAQ webpage.
+# This script is part of the code base to accompany the manuscript
+# "Penalties for Speeding and their Effect on Moving Violations:
+# Evidence from Quebec Drivers"
+# by Chandler, Morin, and Penney
+# in the *Canadian Journal of Economics*, 2022
+#
+# All scripts are available on the GitHub code repository
+# "Penalties_for_Speeding_in_Quebec"
+# available at the following link:
+# https://github.com/LeeMorinUCF/Penalties_for_Speeding_in_Quebec
+# Any updates will be available on the GitHub code repository.
 #
 ################################################################################
 
 
-################################################################################
-# Clearing Workspace and Declaring Packages
-################################################################################
 
-# Clear workspace, if running interactively.
-# rm(list=ls(all=TRUE))
+################################################################################
+# Declaring Packages
+################################################################################
 
 # Load data table package for quick selection on seq.
 # It also includes dependencies for dealing with dates (i.e. lubridate).
@@ -39,80 +45,14 @@ library(data.table)
 # Set parameters for file IO
 ################################################################################
 
-
-# Set working directory, if running interactively.
-drive_path <- 'C:/Users/le279259/OneDrive - University of Central Florida/Documents'
-git_path <- 'Research/SAAQ/SAAQspeeding/SAAQ_XS_de_Vitesse_2008'
-wd_path <- sprintf('%s/%s',drive_path, git_path)
-setwd(wd_path)
-
 # The original data are stored in 'Data/'.
-data_in_path <- 'Data'
+data_dir <- 'Data'
 
 # The file of annual counts of drivers from SAAQ Website.
 annual_file_name <- 'SAAQ_drivers_annual.csv'
 
-
-# The data of counts of licensed drivers are also stored in 'Data/'.
-data_out_path <- 'Data'
-
-
-
 # Set name of output file.
-# out_file_name <- 'saaq_no_tickets.csv'
-# out_file_name <- 'SAAQ_drivers_daily.csv'
-out_file_name_pre <- 'SAAQ_drivers_daily'
-
-
-# Set the indicator to adjust data for unlicensed drivers
-# who get tickets and a multiplier for turnover.
-adj_counts <- TRUE
-# adj_counts <- FALSE
-
-if (adj_counts) {
-
-  out_file_name <- sprintf('%s_adj.csv', out_file_name_pre)
-
-  #--------------------------------------------------------------------------------
-  # Make some adjustments to make the data more realistic.
-  #--------------------------------------------------------------------------------
-
-  # Add an allowance for unlicensed drivers.
-
-  # Unlicensed drivers represent about 5% of drivers who get tickets.
-  unl_pct <- 0.05
-  # The majority are males (about 90%).
-  unl_pct_M <- 0.90
-  # About one third are aged 20 or under.
-  unl_pct_teen <- 0.333
-  # The majority (50%) are aged 21-34.
-  unl_pct_adult <- 0.50
-  # The remaining 16.6% are aged 35 and above.
-  unl_pct_mid_sr <- 0.167
-
-  # Allocate these across the population accordingly.
-
-  # Gross up population by 5% to account for entering and leaving the province.
-  # It's not the same set of drivers each year.
-  turnover_multiplier <- 0.05
-
-} else {
-
-  out_file_name <- sprintf('%s_unadj.csv', out_file_name_pre)
-
-  #--------------------------------------------------------------------------------
-  # Make no adjustments and take the counts of licensed drivers as given.
-  #--------------------------------------------------------------------------------
-
-  unl_pct <- 0
-  unl_pct_M <- 0
-  unl_pct_teen <- 0
-  unl_pct_adult <- 0
-  unl_pct_mid_sr <- 0
-  turnover_multiplier <- 0
-
-}
-
+out_file_name <- 'SAAQ_drivers_daily.csv'
 
 
 ################################################################################
@@ -122,66 +62,8 @@ if (adj_counts) {
 # Totals are based on the number of driver's licenses outstanding
 # for each category as of June 1 of each year.
 
-annual_path_file_name <- sprintf('%s/%s', data_in_path, annual_file_name)
+annual_path_file_name <- sprintf('%s/%s', data_dir, annual_file_name)
 annual <- read.csv(file = annual_path_file_name)
-
-colnames(annual)
-sapply(annual, class)
-
-
-
-
-# year <- 2000
-for (year in seq(2000, 2018)) {
-  col_name <- sprintf('yr_%d', year)
-
-  # Gross up the population for turnover.
-  annual[, col_name] <- as.integer(round(annual[, col_name]*(1 + turnover_multiplier)))
-
-  # Increase counts for predicted number of unlicensed drivers.
-  unl_num <- round(unl_pct*annual[nrow(annual), col_name])
-
-  # Allocate these across different age groups.
-
-  # Young males.
-  row_sel <- annual[, 'age_group'] %in% c("0-15", "16-19") & annual[, 'sex'] == 'M'
-  unl_wt <- annual[row_sel, col_name]/sum(annual[row_sel, col_name])
-  annual[row_sel, col_name] <- annual[row_sel, col_name] +
-    round(unl_wt*unl_pct_M*unl_pct_teen*unl_num)
-
-  # Young females.
-  row_sel <- annual[, 'age_group'] %in% c("0-15", "16-19") & annual[, 'sex'] == 'F'
-  unl_wt <- annual[row_sel, col_name]/sum(annual[row_sel, col_name])
-  annual[row_sel, col_name] <- annual[row_sel, col_name] +
-    round(unl_wt*(1 - unl_pct_M)*unl_pct_teen*unl_num)
-
-  # Adult males.
-  row_sel <- annual[, 'age_group'] %in% c("20-24", "25-34") & annual[, 'sex'] == 'M'
-  unl_wt <- annual[row_sel, col_name]/sum(annual[row_sel, col_name])
-  annual[row_sel, col_name] <- annual[row_sel, col_name] +
-    round(unl_wt*unl_pct_M*unl_pct_adult*unl_num)
-
-  # Adult females.
-  row_sel <- annual[, 'age_group'] %in% c("20-24", "25-34") & annual[, 'sex'] == 'F'
-  unl_wt <- annual[row_sel, col_name]/sum(annual[row_sel, col_name])
-  annual[row_sel, col_name] <- annual[row_sel, col_name] +
-    round(unl_wt*(1 - unl_pct_M)*unl_pct_adult*unl_num)
-
-  # Middle aged or senior males.
-  row_sel <- annual[, 'age_group'] %in% c("20-24", "25-34") & annual[, 'sex'] == 'M'
-  unl_wt <- annual[row_sel, col_name]/sum(annual[row_sel, col_name])
-  annual[row_sel, col_name] <- annual[row_sel, col_name] +
-    round(unl_wt*unl_pct_M*unl_pct_mid_sr*unl_num)
-
-  # Middle aged or senior females.
-  row_sel <- annual[, 'age_group'] %in% c("20-24", "25-34") & annual[, 'sex'] == 'F'
-  unl_wt <- annual[row_sel, col_name]/sum(annual[row_sel, col_name])
-  annual[row_sel, col_name] <- annual[row_sel, col_name] +
-    round(unl_wt*(1 - unl_pct_M)*unl_pct_mid_sr*unl_num)
-
-
-
-}
 
 
 
@@ -192,22 +74,11 @@ for (year in seq(2000, 2018)) {
 
 # Construct a date series from dates in main dataset.
 
-# Data limits from dataset with tickets (events).
-# > min(saaq[, 'date'])
-# [1] "1998-01-01"
-# > max(saaq[, 'date'])
-# [1] "2010-12-31"
-# >
 
 day_1 <- as.numeric(as.Date('1998-01-01'))
 day_T <- as.numeric(as.Date('2010-12-31'))
 
 date_list <- as.Date(seq(day_1, day_T), origin = as.Date('1970-01-01'))
-
-
-length(date_list)
-min(date_list)
-max(date_list)
 
 
 # Get dimensions from product of sex and age groups.
@@ -217,11 +88,6 @@ age_group_list <- c('0-15', '16-19', '20-24', '25-34', '35-44', '45-54',
 num_rows <- length(date_list)*length(age_group_list)*2
 
 
-# Define columns as in main saaq dataset of tickets:
-# > colnames(saaq)
-# [1] "seq"     "sex"     "dob_yr"  "dob_mo"  "dob_day" "date"    "points"
-# [8] "dcon"    "age"     "age_grp"
-# >
 
 # Initialize a data frame for all the drivers without tickets each day.
 driver_counts <- data.frame(date = rep(date_list,
@@ -234,10 +100,6 @@ driver_counts <- data.frame(date = rep(date_list,
                                       length(date_list)),
                             points = rep(0, num_rows),
                             num = rep(NA, num_rows))
-
-summary(driver_counts)
-head(driver_counts, 25)
-tail(driver_counts, 25)
 
 
 # Populate the number of licensed drivers by category.
@@ -323,65 +185,11 @@ for (date_num in 1:length(date_list)) {
 }
 
 
-
-################################################################################
-# Validation
-################################################################################
-
-
-# # Now do some tests to verify accuracy.
-#
-# # Check at some June 1 dates.
-# driver_counts[driver_counts[, 'date'] == '2000-06-01', ]
-# driver_counts[driver_counts[, 'date'] == '2000-06-30', ]
-# driver_counts[driver_counts[, 'date'] == '2002-06-01', ]
-# driver_counts[driver_counts[, 'date'] == '2002-06-30', ]
-# driver_counts[driver_counts[, 'date'] == '2010-06-01', ]
-#
-# # Check two consecutive days.
-# driver_counts[driver_counts[, 'date'] == '2010-05-31', ]
-#
-# driver_counts[driver_counts[, 'date'] == '2010-06-30', ]
-#
-#
-#
-#
-# # Plot the age group counts over time.
-# # sel_obsn <- driver_counts[, 'age_grp'] == '0-15' &
-# #   driver_counts[, 'sex'] == 'F'
-# # sel_obsn <- driver_counts[, 'age_grp'] == '0-15' &
-# #   driver_counts[, 'sex'] == 'M'
-# # sel_obsn <- driver_counts[, 'age_grp'] == '20-24' &
-# #   driver_counts[, 'sex'] == 'F'
-# sel_obsn <- driver_counts[, 'age_grp'] == '20-24' &
-#   driver_counts[, 'sex'] == 'M'
-# # sel_obsn <- driver_counts[, 'age_grp'] == '90-199' &
-# #   driver_counts[, 'sex'] == 'M'
-# # sel_obsn <- driver_counts[, 'age_grp'] == '90-199' &
-# #   driver_counts[, 'sex'] == 'F'
-#
-# # Plot a time series for this selection.
-# new_year_dates <- seq(sum(sel_obsn))[month(driver_counts[sel_obsn, 'date']) == 1 &
-#   mday(driver_counts[sel_obsn, 'date']) == 1]
-# new_year_labels <- year(driver_counts[sel_obsn, 'date'][new_year_dates])
-#
-#
-# # Plot for the selected age group.
-# plot(driver_counts[sel_obsn, 'num'],
-#      xaxt = 'n')
-#
-# axis(1, at = new_year_dates,
-#      labels = new_year_labels)
-
-
-# Note the kinks on June 1, every year, as expected.
-
-
 ################################################################################
 # Output Daily Driver Counts
 ################################################################################
 
-out_path_file_name <- sprintf('%s/%s', data_out_path, out_file_name)
+out_path_file_name <- sprintf('%s/%s', data_dir, out_file_name)
 write.csv(x = driver_counts, file = out_path_file_name, row.names = FALSE)
 
 

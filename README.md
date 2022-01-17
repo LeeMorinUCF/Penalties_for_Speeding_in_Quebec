@@ -13,22 +13,52 @@ Any updates will be available on the GitHub code repository.
 
 ## Data Availability
 
+All data were obtained from the 
+Société de l'assurance automobile du Québec, 
+the driver's licence and insurance agency 
+for the province of Québec. 
+
+These primary datasets must be placed in the ```Data```
+folder before running the scripts.
+
+
 ### Traffic Tickets
 
 The primary data source is an anonymized record of traffic tickets from the SAAQ for each year in the sample. 
 The data were provided to the authors under an understanding
 that the data not be made publicly available. 
 
+The datasets are named in the format ```csYYYY.dta```, 
+with ```YYYY```` indicating the year in which drivers received tickets. 
 
-### Statistics on Individual Drivers
+The datasets contain the following variables.
 
-The above record of tickets are market with
+- ```pddobt``` is the number of points.
+- ```dinf``` is the date of infraction in ```YYYY-MM-DD``` format.
+- ```dcon``` is the date of conviction in ```YYYY-MM-DD``` format.
+- ```seq``` is a sequence of unique identification numbers for the drivers.
+
+
+### Statistics for Individual Drivers
+
+The above record of tickets are marked with
 driver-specific identifier, which serves as a key for 
 a dataset of driver-specific characteristics.
 This dataset contains the driver identification number, 
 along with the gender and date of birth of each driver.
 This information is not publicly available
 to protect the privacy of the drivers.
+
+
+The file ```seq.dta``` contains licensee data 
+for 3,911,743 individuals who received tickets
+and includes the following variables.
+
+- ```seq``` is a sequence of unique identification numbers for the drivers.
+- ```sxz``` is either 1.0 or 2.0, an indicator for male or female, respectively.
+- ```an``` is an integer for the year of birth of each driver.
+- ```mois``` is an integer for the month of birth of each driver.
+- ```jour``` is an integer for the calendar day of birth of each driver.
 
 
 ### Aggregate Counts of Drivers
@@ -39,7 +69,14 @@ from the website of the Banque de données des statistiques officielles sur le Q
 
 The statistics were compiled into a single spreadsheet
 ```SAAQ_drivers_annual.csv```, 
-which is available in the ```Data``` folder. 
+which is available in the ```Data``` folder
+and contains the following variables. 
+
+- ```age_group``` is an age range in years.
+- ```sex``` is an indicator for the gender of drivers, 
+  either ```"M"``` or ```"F"```.
+- ```yrYYYY``` denotes that the column records the number of drivers in each year ```YYYY``` on June 1 of each year.
+
 
 
 # Instructions:
@@ -96,7 +133,7 @@ perform the following operations:
 
 ## Statistical Analysis
 
-The script in the ```Code/Reg``` folder contains 
+The script in the ```Code/Reg``` folder  
 is the main script for 
 the sequence of regression models. 
 
@@ -121,7 +158,8 @@ For each model, the script performs the following operations:
 1.  Set the relevant sample period, 
     which differs for the placebo regression.
 1.  Set the sample selection, 
-    to select either the full sample or high-point drivers. 
+    to select male or female drivers
+    and to select either the full sample or high-point drivers. 
 1.  Estimate the linear and logistic regression model. 
 1.  Calculate HCCME standard errors 
     for the linear probability model. 
@@ -139,7 +177,7 @@ run a series of scripts
 to draw from values in the estimation
 results to produce the figures and tables in the manuscript. 
 
-### Producing the Outputs
+### Producing the Output
 
 Run the scripts in the ```Code/Out``` folder
 perform the following operations:
@@ -164,11 +202,13 @@ perform the following operations:
     which are both output to the ```Figures``` folder
     and are ultimately named 
     ```Figure1.eps``` and ```Figure2.eps```. 
-    It also outputs a dataset ```.csv``` which is used to calculate
+    It also outputs a dataset 
+    ```Point_Freq_Gender_Ratio.csv```. 
+    which is used to calculate
     the summary statistics in Table 2. 
 
 
-### Producing the Tables individually
+### Producing the Tables Separately
 
 All tables in the manuscript were output to the folder ```Tables```.
 
@@ -185,7 +225,7 @@ All tables in the manuscript were output to the folder ```Tables```.
     in the folder ```Code/Lib```. 
 
 
-### Producing the Figures individually
+### Producing the Figures Separately
 
 All figures in the manuscript were output to the folder ```Figures```.
 
@@ -260,7 +300,8 @@ The attached packages include the following:
 
 - ```foreign``` version 0.8-81, to open datasets in ```.dta``` format. 
 
-- ```data.table```, version 1.13.0 (using 4 threads), to handle the main data table for data preparation and analysis 
+- ```data.table```, version 1.13.0 (using 4 threads), 
+to handle the main data table for data preparation and analysis 
 in the scripts in the ```Code/Prep``` and ```Code/Reg``` folders. 
 
 - ```xtable```, version 1.8-4, to generate LaTeX tables for Tables 3, 4, 5, 6, and 7.   
@@ -283,19 +324,6 @@ with the following versions:
 - ```tidyr``` version 1.1.3        
 - ```stringi``` version 1.5.3    
 
-## References
-
-- Société de l'assurance automobile du Québec, 
-  Administrative Dataset: Traffic Violations 2004-2010.
-
-- Société de l'assurance automobile du Québec, 
-  Administrative Dataset: Vital Statistics 
-  for Drivers with Traffic Violations 2004-2010.
-
-- Banque de données des statistiques officielles sur le Québec
-[Nombre de titulaires d'un permis de conduire ou d'un permis probatoire selon le sexe et l'âge, Québec et régions administratives](https://bdso.gouv.qc.ca/pls/ken/ken213_afich_tabl.page_tabl?p_iden_tran=REPERRUNYAW46-44034787356%7C@%7Dzb&p_lang=2&p_m_o=SAAQ&p_id_ss_domn=718&p_id_raprt=3370#tri_pivot_1=500400000)
-
-
 ## Acknowledgements
 
 The authors would like to thank Francois Tardif for his help with the data in the early
@@ -304,4 +332,20 @@ valuable comments.
 Jeffrey Penney acknowledges support from SSHRC. 
 The authors are especially grateful to the editor and two anonymous referees 
 for comments and suggestions that led to substantial improvements from the original manuscript. 
+
+
+## References
+
+- Société de l'assurance automobile du Québec, 
+  Traffic Violations 1998-2010.
+
+- Société de l'assurance automobile du Québec, 
+  Vital Statistics 
+  for Drivers with Traffic Violations 1998-2010.
+
+
+- Banque de données des statistiques officielles sur le Québec
+[Nombre de titulaires d'un permis de conduire ou d'un permis probatoire selon le sexe et l'âge, Québec et régions administratives](https://bdso.gouv.qc.ca/pls/ken/ken213_afich_tabl.page_tabl?p_iden_tran=REPERRUNYAW46-44034787356%7C@%7Dzb&p_lang=2&p_m_o=SAAQ&p_id_ss_domn=718&p_id_raprt=3370#tri_pivot_1=500400000)
+
+
  
