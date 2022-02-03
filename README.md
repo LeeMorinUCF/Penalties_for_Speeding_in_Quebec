@@ -76,7 +76,7 @@ The file ```seq.dta``` contains licensee data
 for 3,911,743 individuals who received tickets
 and includes the following variables.
 
-\item \texttt{seq} 
+- ```seq``` 
 or *Numéro séquentiel* 
 is a sequence of unique identification numbers for the drivers.
 - ```sxz``` 
