@@ -17,8 +17,19 @@ All data were obtained from the
 Société de l'assurance automobile du Québec, 
 the driver's licence and insurance agency 
 for the province of Québec. 
+The administrators responsible for the data can be reached at
+[https://saaq.gouv.qc.ca/en/reach-us](https://saaq.gouv.qc.ca/en/reach-us)
+or at the following mailing address: 
 
-These primary datasets must be placed in the ```Data```
+Service de la recherche en sécurité routière 
+Société de l'assurance automobile du Québec 
+333, boulevard Jean-Lesage, C-4-12 
+C. P. 19600, succursale Terminus 
+Québec (Québec) G1K 8J6 
+Téléphone : 418 528-4095 
+
+Once the data are obtained, 
+these primary datasets must be placed in the ```Data```
 folder before running the scripts.
 
 
@@ -28,15 +39,25 @@ The primary data source is an anonymized record of traffic tickets from the SAAQ
 The data were provided to the authors under an understanding
 that the data not be made publicly available. 
 
+The official name of the database is 
+*Fichiers des infractions au Code de la sécurité routière*. 
 The datasets are named in the format ```csYYYY.dta```, 
-with ```YYYY```` indicating the year in which drivers received tickets. 
+with ```YYYY``` indicating the year in which drivers received tickets. 
 
 The datasets contain the following variables.
 
-- ```pddobt``` is the number of points.
-- ```dinf``` is the date of infraction in ```YYYY-MM-DD``` format.
-- ```dcon``` is the date of conviction in ```YYYY-MM-DD``` format.
-- ```seq``` is a sequence of unique identification numbers for the drivers.
+- ```pddobt``` 
+or or *Nombre de points* 
+is the number of points.
+- ```dinf``` 
+or *Date d'infraction*
+is the date of infraction in ```YYYY-MM-DD``` format.
+- ```dcon``` 
+or *Date de condamnation* 
+is the date of conviction in ```YYYY-MM-DD``` format.
+- ```seq``` 
+or *Numéro séquentiel* 
+is a sequence of unique identification numbers for the drivers.
 
 
 ### Statistics for Individual Drivers
@@ -49,16 +70,27 @@ along with the gender and date of birth of each driver.
 This information is not publicly available
 to protect the privacy of the drivers.
 
-
+The official name of the database is 
+*Fichier des numéros séquentiels*. 
 The file ```seq.dta``` contains licensee data 
 for 3,911,743 individuals who received tickets
 and includes the following variables.
 
-- ```seq``` is a sequence of unique identification numbers for the drivers.
-- ```sxz``` is either 1.0 or 2.0, an indicator for male or female, respectively.
-- ```an``` is an integer for the year of birth of each driver.
-- ```mois``` is an integer for the month of birth of each driver.
-- ```jour``` is an integer for the calendar day of birth of each driver.
+\item \texttt{seq} 
+or *Numéro séquentiel* 
+is a sequence of unique identification numbers for the drivers.
+- ```sxz``` 
+or *Sexe*
+is either 1.0 or 2.0, an indicator for male or female, respectively.
+- ```an``` 
+or *Année de naissance provenant du numéro de permis de conduire*
+is an integer for the year of birth of each driver.
+- ```mois``` 
+or *Mois de naissance provenant du numéro de permis de conduire*
+is an integer for the month of birth of each driver.
+- ```jour``` 
+or *JOur de naissance provenant du numéro de permis de conduire*
+is an integer for the calendar day of birth of each driver.
 
 
 ### Aggregate Counts of Drivers
@@ -326,7 +358,7 @@ with the following versions:
 
 ## Acknowledgements
 
-The authors would like to thank Francois Tardif for his help with the data in the early
+The authors would like to thank François Tardif for his help with the data in the early
 stages of this project, as well as Catherine Maclean for helpful suggestions and
 valuable comments.
 Jeffrey Penney acknowledges support from SSHRC. 
@@ -337,12 +369,12 @@ for comments and suggestions that led to substantial improvements from the origi
 ## References
 
 - Société de l'assurance automobile du Québec, 
-  Traffic Violations 1998-2010.
+  *Fichiers des infractions au Code de la sécurité routière*, 
+  1998-2010.
 
 - Société de l'assurance automobile du Québec, 
-  Vital Statistics 
+  *Fichier des numéros séquentiels*,
   for Drivers with Traffic Violations 1998-2010.
-
 
 - Banque de données des statistiques officielles sur le Québec
 [Nombre de titulaires d'un permis de conduire ou d'un permis probatoire selon le sexe et l'âge, Québec et régions administratives](https://bdso.gouv.qc.ca/pls/ken/ken213_afich_tabl.page_tabl?p_iden_tran=REPERRUNYAW46-44034787356%7C@%7Dzb&p_lang=2&p_m_o=SAAQ&p_id_ss_domn=718&p_id_raprt=3370#tri_pivot_1=500400000)
