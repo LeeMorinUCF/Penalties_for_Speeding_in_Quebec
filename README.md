@@ -22,10 +22,15 @@ The administrators responsible for the data can be reached at
 or at the following mailing address: 
 
 Service de la recherche en sécurité routière 
+
 Société de l'assurance automobile du Québec 
+
 333, boulevard Jean-Lesage, C-4-12 
+
 C. P. 19600, succursale Terminus 
+
 Québec (Québec) G1K 8J6 
+
 Téléphone : 418 528-4095 
 
 Once the data are obtained, 
