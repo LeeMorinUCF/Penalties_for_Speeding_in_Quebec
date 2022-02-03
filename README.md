@@ -21,17 +21,12 @@ The administrators responsible for the data can be reached at
 [https://saaq.gouv.qc.ca/en/reach-us](https://saaq.gouv.qc.ca/en/reach-us)
 or at the following mailing address: 
 
-Service de la recherche en sécurité routière 
-
-Société de l'assurance automobile du Québec 
-
-333, boulevard Jean-Lesage, C-4-12 
-
-C. P. 19600, succursale Terminus 
-
-Québec (Québec) G1K 8J6 
-
-Téléphone : 418 528-4095 
+Service de la recherche en sécurité routière  
+Société de l'assurance automobile du Québec  
+333, boulevard Jean-Lesage, C-4-12  
+C. P. 19600, succursale Terminus  
+Québec (Québec) G1K 8J6  
+Téléphone : 418 528-4095  
 
 Once the data are obtained, 
 these primary datasets must be placed in the ```Data```
